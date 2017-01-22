@@ -23,6 +23,8 @@
             border: 1px solid black;
         }
 
+
+
         /*#pt,#line,#polygon {*/
         /*display: inline-block;*/
         /*vertical-align: middle;*/
@@ -34,10 +36,11 @@
     </style>
 
     <script src="script/jscolor.min.js"></script>
-    <link rel="stylesheet" href="http://localhost/jsapi/4.1/esri/css/main.css">
-    <script src="http://localhost/jsapi/4.2/"></script>
+    <!--<link rel="stylesheet" href="http://localhost/jsapi/4.1/esri/css/main.css">-->
+    <!--<script src="http://localhost/jsapi/4.2/"></script>-->
+    <link rel="stylesheet" href="https://js.arcgis.com/4.2/esri/css/main.css">
+    <script src="https://js.arcgis.com/4.2/"></script>
     <!--<link rel="stylesheet" href="https://js.arcgis.com/4.1/esri/css/main.css">-->
-    <!--<script src="script/tween.js"></script>-->
     <script>
         require([
             'esri/layers/FeatureLayer',
@@ -62,14 +65,12 @@
             "dojo/domReady!"
         ], function (FeatureLayer, LabelClass, LabelSymbol3D, TextSymbol3DLayer, Map, SceneView, Search, Graphic, Point, Polyline, Polygon, SimpleMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol, GraphicsLayer, esriConfig, dom, on, Draw) {
             esriConfig.request.corsEnabledServers.push('localhost')
-            // Create the Map
             graphicsLayer = new GraphicsLayer();
             map = new Map({
                 basemap: "hybrid",
                 ground: "world-elevation",
                 layers: [graphicsLayer]
             });
-            // Create the SceneView
             view = new SceneView({
                 map: map,
                 container: "viewDiv",
@@ -81,10 +82,6 @@
                         "spatialReference": {"latestWkid": 3857, "wkid": 102100}
                     }, "heading": 355.6854419524642, "tilt": 29.162116134342572
                 }
-//                    {
-//                    position: [7.654, 45.919, 5183],
-//                    tilt: 80
-//                }
             });
 
 
@@ -92,7 +89,6 @@
 
 
             document.getElementById('buttonsDiv').addEventListener('click', function (e) {
-//                console.log(e);
                 switch (e.target.id) {
                     case 'pt':
                         draw.activate(Draw.POINT)
@@ -133,42 +129,41 @@
                 }
             })
 
-            document.body.addEventListener('keydown', function (e) {
-//                console.log(e)
-                switch (e.code) {
-                    case 'Numpad1':
-                        draw.newHead()
-                        break;
-                    case 'Numpad2':
-                        draw.activate(Draw.POINT)
-                        break;
-                    case 'Numpad3':
-                        draw.activate(Draw.LINE)
-                        break;
-                    case 'Numpad4':
-                        draw.activate(Draw.POLYGON)
-                        break;
-                    case 'Numpad5':
-                        draw.activate(Draw.CIRCLE)
-                        break;
-                    case 'Numpad6':
-                        draw.activate(Draw.CURVE)
-                        break;
-                    case 'Numpad7':
-                        draw.activate(Draw.FREEHAND_ARROW)
-                        break;
-                    case 'Numpad8':
-                        draw.activate(Draw.BEZIER_POLYGON)
-                        break;
-                    case 'Numpad9':
-                        draw.activate(Draw.BEZIER_CURVE)
-                        break;
-                    case 'Numpad0':
-                        draw.activate(Draw.MULTIHEAD)
-                        break;
-                }
-
-            })
+//            document.body.addEventListener('keydown', function (e) {
+//                switch (e.code) {
+//                    case 'Numpad1':
+//                        draw.newHead()
+//                        break;
+//                    case 'Numpad2':
+//                        draw.activate(Draw.POINT)
+//                        break;
+//                    case 'Numpad3':
+//                        draw.activate(Draw.LINE)
+//                        break;
+//                    case 'Numpad4':
+//                        draw.activate(Draw.POLYGON)
+//                        break;
+//                    case 'Numpad5':
+//                        draw.activate(Draw.CIRCLE)
+//                        break;
+//                    case 'Numpad6':
+//                        draw.activate(Draw.CURVE)
+//                        break;
+//                    case 'Numpad7':
+//                        draw.activate(Draw.FREEHAND_ARROW)
+//                        break;
+//                    case 'Numpad8':
+//                        draw.activate(Draw.BEZIER_POLYGON)
+//                        break;
+//                    case 'Numpad9':
+//                        draw.activate(Draw.BEZIER_CURVE)
+//                        break;
+//                    case 'Numpad0':
+//                        draw.activate(Draw.MULTIHEAD)
+//                        break;
+//                }
+//
+//            })
             update = function (e) {
                 draw.pointSymbol = new SimpleMarkerSymbol({
                     color: [e.rgb[0], e.rgb[1], e.rgb[2]],
@@ -190,30 +185,30 @@
                     }
                 })
             }
-            var offsetInput = document.getElementById('offsetInput')
-            var select = document.getElementById('modeSelect')
-            select.addEventListener('change', function () {
-                var mode = select.options[select.selectedIndex].value;
-
-                if (mode != "on-the-ground") {
-                    offsetInput.removeAttribute("disabled");
-                } else {
-                    offsetInput.setAttribute("disabled", "true");
-                }
-
-                graphicsLayer.elevationInfo = {
-                    mode: mode,
-                    offset: document.getElementById('offsetInput').value
-                };
-            })
-
-            offsetInput.addEventListener('mousewheel', function (e) {
-                offsetInput.value -= e.deltaY
-                graphicsLayer.elevationInfo = {
-                    mode: select.options[select.selectedIndex].value,
-                    offset: document.getElementById('offsetInput').value
-                };
-            })
+//            var offsetInput = document.getElementById('offsetInput')
+//            var select = document.getElementById('modeSelect')
+//            select.addEventListener('change', function () {
+//                var mode = select.options[select.selectedIndex].value;
+//
+//                if (mode != "on-the-ground") {
+//                    offsetInput.removeAttribute("disabled");
+//                } else {
+//                    offsetInput.setAttribute("disabled", "true");
+//                }
+//
+//                graphicsLayer.elevationInfo = {
+//                    mode: mode,
+//                    offset: document.getElementById('offsetInput').value
+//                };
+//            })
+//
+//            offsetInput.addEventListener('mousewheel', function (e) {
+//                offsetInput.value -= e.deltaY
+//                graphicsLayer.elevationInfo = {
+//                    mode: select.options[select.selectedIndex].value,
+//                    offset: document.getElementById('offsetInput').value
+//                };
+//            })
 
         });
     </script>
@@ -225,7 +220,6 @@
     <button id="pt">Point</button>
     <button id="freeline">FreeLine</button>
     <button id="line">Line</button>
-
     <button id="polygon">Polygon</button>
     <button id="circle">Circle</button>
     <button id="curve">Circle Segment</button>
@@ -240,22 +234,22 @@
     <label>
         <input class="jscolor" value="e27728" style="margin-top: 10px" onchange="update(this.jscolor)">
     </label>
-    <table style="display:inline;margin-left:50px">
-        <tr>
-            <td>Mode:</td>
-            <td>
-                <select id="modeSelect">
-                    <option value="on-the-ground">on the ground</option>
-                    <option value="relative-to-ground">relative to ground</option>
-                    <option value="absolute-height">absolute height</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>Offset:</td>
-            <td><input id="offsetInput" type="text" size="5" value="2000" disabled="true"></td>
-        </tr>
-    </table>
+    <!--<table style="display:inline;margin-left:50px">-->
+    <!--<tr>-->
+    <!--<td>Mode:</td>-->
+    <!--<td>-->
+    <!--<select id="modeSelect">-->
+    <!--<option value="on-the-ground">on the ground</option>-->
+    <!--<option value="relative-to-ground">relative to ground</option>-->
+    <!--<option value="absolute-height">absolute height</option>-->
+    <!--</select>-->
+    <!--</td>-->
+    <!--</tr>-->
+    <!--<tr>-->
+    <!--<td>Offset:</td>-->
+    <!--<td><input id="offsetInput" type="text" size="5" value="2000" disabled="true"></td>-->
+    <!--</tr>-->
+    <!--</table>-->
 </div>
 
 </body>

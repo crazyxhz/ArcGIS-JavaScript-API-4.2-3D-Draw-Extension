@@ -1,5 +1,4 @@
-define([
-        "esri/core/declare",
+define(["esri/core/declare",
         'dojo/_base/lang',
         "./script/Graphic.js",
         "esri/geometry/Point",
@@ -9,9 +8,15 @@ define([
         "esri/symbols/SimpleLineSymbol",
         "esri/symbols/SimpleFillSymbol",
         "esri/layers/GraphicsLayer",
-        'dojo/_base/array', './script/MathStuff.js', "esri/geometry/geometryEngine", './script/three.min.js', "esri/views/3d/externalRenderers"
+        'dojo/_base/array',
+        './script/MathStuff.js',
+        "esri/geometry/geometryEngine",
+        './script/three.min.js',
+        "esri/views/3d/externalRenderers",
+        "esri/symbols/PolygonSymbol3D",
+        "esri/symbols/ExtrudeSymbol3DLayer"
     ],
-    function (declare, lang, Graphic, Point, Polyline, Polygon, SimpleMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol, GraphicsLayer, Array, MathStuff, geometryEngine, THREE, externalRenderers) {
+    function (declare, lang, Graphic, Point, Polyline, Polygon, SimpleMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol, GraphicsLayer, Array, MathStuff, geometryEngine, THREE, externalRenderers, PolygonSymbol3D, ExtrudeSymbol3DLayer) {
         var draw = declare(null, {
             declaredClass: "Draw",
             constructor: function (options) {
@@ -41,17 +46,30 @@ define([
                 this._preGra = null
                 this._currGra = null
                 this._newHead = false
+                this._lastGeometry = null
                 this._headerCollection = []
                 this._handlers = {}
+                this._currMessage = ''
+                document.body.insertAdjacentHTML('beforeend', '<div id="tips" style="position:absolute;padding: 20px; display:none;background: white;z-index: 2147483647;font-size: 12px;border-style: solid;border-color: #dddddd;border-width: 1px;margin-top: 5px;margin-left: 5px;padding-bottom: 5px;padding-left: 5px;padding-right: 5px;padding-top: 5px;"></div>')
+                this.view.root.addEventListener('mousemove', function (e) {
+                    if (this._currMessage) {
+                        var left = e.clientX + "px";
+                        var top = e.clientY + "px";
+
+                        var div = document.getElementById('tips');
+                        div.innerHTML = this._currMessage
+                        div.style.left = left;
+                        div.style.top = top;
+
+                        div.style.display = 'block'
+                    }
+                }.bind(this))
             },
             reset: function (mode) {
-                // for (var key in this._handlers) {
-                //     console.log(this._handlers[key])
-                //     this._handlers[key].remove()
-                // }
                 this.gl.elevationInfo = {mode: mode}
                 this._points.length = 0
                 this._preGra = null
+                this._lastGeometry = null
                 this._currGra = null
             },
             addGraphic2Map: function (geometry, symbol) {
@@ -65,74 +83,89 @@ define([
                 this.gl.add(this._currGra);
             },
             activate: function (options) {
+                //this._currGra = null
                 switch (options) {
                     case draw.POINT:
                         this.reset('on-the-ground')
-                        this._handlers.click = this.view.on('click', this.drawPoint.bind(this));
-                        break;
-                    case draw.LINE:
-                        this.reset('on-the-ground')
-                        this._handlers.click = this.view.on('click', this.drawLine_click.bind(this));
-                        this._handlers.pointer_move = this.view.on('pointer-move', this.drawLine_pt_move.bind(this))
-                        this._handlers.doubleClick = this.view.on('double-click', this.drawDoubleClick.bind(this))
+                        this._currMessage = '<b>Single</b> click to add point.'
+                        this._handlers.click = this.view.on('click', this.draw_pt_click.bind(this));
                         break;
                     case draw.FREELINE:
                         this.reset('on-the-ground')
+                        this._currMessage = '<b>Single</b> click to start.'
                         this._handlers.click = this.view.on('click', this.drawFreeLine_click.bind(this));
                         this._handlers.pointer_move = this.view.on('pointer-move', this.drawFreeLine_pt_move.bind(this))
-                        this._handlers.doubleClick = this.view.on('double-click', this.drawDoubleClick.bind(this))
+                        this._handlers.doubleClick = this.view.on('double-click', this.draw_double_click.bind(this))
                         break;
+                    case draw.LINE:
+                        this.reset('on-the-ground')
+                        this._currMessage = '<b>Single</b> click to start.'
+
+                        this._handlers.click = this.view.on('click', this.drawline_click.bind(this));
+                        this._handlers.pointer_move = this.view.on('pointer-move', this.drawline_pt_move.bind(this))
+                        this._handlers.doubleClick = this.view.on('double-click', this.draw_double_click.bind(this))
+                        break;
+
                     case draw.POLYGON:
                         this.reset('on-the-ground')
+                        this._currMessage = '<b>Single</b> click to start or add point.'
                         this._handlers.click = this.view.on('click', this.drawPolygon.bind(this));
                         this._handlers.pointer_move = this.view.on('pointer-move', this.drawPolygon_pt_move.bind(this))
-                        this._handlers.doubleClick = this.view.on('double-click', this.drawDoubleClick.bind(this))
+                        this._handlers.doubleClick = this.view.on('double-click', this.draw_double_click.bind(this))
                         break;
                     case draw.CIRCLE:
                         this.reset('on-the-ground')
+                        this._currMessage = '<b>Single</b> click to start.'
                         this._handlers.click = this.view.on('click', this.drawCircle.bind(this));
                         this._handlers.pointer_move = this.view.on('pointer-move', this.drawCircle_pt_move.bind(this))
-                        this._handlers.doubleClick = this.view.on('double-click', this.drawDoubleClick.bind(this))
+                        this._handlers.doubleClick = this.view.on('double-click', this.draw_double_click.bind(this))
                         break;
                     case draw.CURVE:
                         this.reset('on-the-ground')
+                        this._currMessage = '<b>Single</b> click to start.'
                         this._handlers.click = this.view.on('click', this.drawCurve.bind(this));
                         this._handlers.pointer_move = this.view.on('pointer-move', this.drawCurve_pt_move.bind(this))
-                        this._handlers.doubleClick = this.view.on('double-click', this.drawDoubleClick.bind(this))
+                        this._handlers.doubleClick = this.view.on('double-click', this.draw_double_click.bind(this))
                         break;
                     case draw.FREEHAND_ARROW:
                         this.reset('on-the-ground')
+                        this._currMessage = '<b>Single</b> click to start.'
                         this._handlers.click = this.view.on('click', this.drawFreeHandArrow.bind(this));
                         this._handlers.pointer_move = this.view.on('pointer-move', this.drawFreeHandArrow_pt_move.bind(this))
-                        this._handlers.doubleClick = this.view.on('double-click', this.drawDoubleClick.bind(this))
+                        this._handlers.doubleClick = this.view.on('double-click', this.draw_double_click.bind(this))
                         break;
                     case draw.BEZIER_POLYGON:
                         this.reset('on-the-ground')
+                        this._currMessage = '<b>Single</b> click to start.'
                         this._handlers.click = this.view.on('click', this.drawFreePolygon.bind(this));
                         this._handlers.pointer_move = this.view.on('pointer-move', this.drawFreePolygon_pt_move.bind(this))
-                        this._handlers.doubleClick = this.view.on('double-click', this.drawDoubleClick.bind(this))
+                        this._handlers.doubleClick = this.view.on('double-click', this.draw_double_click.bind(this))
                         break;
                     case draw.BEZIER_CURVE:
                         this.reset('on-the-ground')
+                        this._currMessage = '<b>Single</b> click to start.'
                         this._handlers.click = this.view.on('click', this.drawbezierLine.bind(this));
                         this._handlers.pointer_move = this.view.on('pointer-move', this.drawbezierLine_pt_move.bind(this))
-                        this._handlers.doubleClick = this.view.on('double-click', this.drawDoubleClick.bind(this))
+                        this._handlers.doubleClick = this.view.on('double-click', this.draw_double_click.bind(this))
                         break;
                     case draw.MULTIHEAD:
                         this.reset('on-the-ground')
+                        this._currMessage = '<b>Single</b> click to start.'
                         this._handlers.click = this.view.on('click', this.drawMultiHead.bind(this));
                         this._handlers.pointer_move = this.view.on('pointer-move', this.drawMultiHead_pt_move.bind(this))
-                        this._handlers.doubleClick = this.view.on('double-click', this.drawDoubleClick.bind(this))
+                        this._handlers.doubleClick = this.view.on('double-click', this.draw_double_click.bind(this))
                         break;
                     case draw.DASHLINE:
                         this.reset('on-the-ground')
                         this.drawHandler = this.view.on('click', this.drawDash.bind(this));
                         break;
                     case draw.CUBE:
-                        this.reset('on-the-ground')
-                        draw.activate(Draw.POLYGON)
-                        this._handlers.pointer_move = this.view.on('pointer-move', this.drawCube_pt_move.bind(this))
-                        this._handlers.doubleClick = this.view.on('double-click', this.drawDoubleClick.bind(this))
+                        // this.reset('on-the-ground')
+                        //this.activate(draw.POLYGON)
+
+                        this._handlers.click = this.view.on('click', this.drawcube_click.bind(this));
+                        this._handlers.pointer_move = this.view.on('pointer-move', this.drawcube_pt_move.bind(this))
+                        this._handlers.doubleClick = this.view.on('double-click', this.draw_double_click.bind(this))
                         break;
                 }
             },
@@ -142,9 +175,15 @@ define([
                 }
                 // this.drawHandler.remove()
                 this._preGra = null
-                this._currGra = null
+                this._lastGeometry = this._currGra.geometry
+                this._y = 0
+                this._yFinal = 0
+                this._currMessage = ''
+                var div = document.getElementById('tips');
+                div.style.display = 'none'
+                // this._currGra = null
             },
-            drawPoint: function (e) {
+            draw_pt_click: function (e) {
                 var point = new Point({
                     x: e.mapPoint.x,
                     y: e.mapPoint.y,
@@ -152,11 +191,12 @@ define([
                     spatialReference: this.view.spatialReference
                 })
                 this.addGraphic2Map(point, this.pointSymbol)
+
                 this.deactivate()
                 // this.reset('on-the-ground')
             },
-            drawLine_click: function (e) {
-
+            drawline_click: function (e) {
+                this._currMessage = '<b>Single</b> click to add point.<br/><b>Double</b> click to end.'
                 var pt = [e.mapPoint.x, e.mapPoint.y, e.mapPoint.z]
                 this._points.push(pt)
                 if (this._points.length >= 2) {
@@ -167,7 +207,7 @@ define([
                     this.addGraphic2Map(line, this.lineSymbol)
                 }
             },
-            drawLine_pt_move: function (e) {
+            drawline_pt_move: function (e) {
 
                 if (this._points.length == 0) return
                 //if (e.x == this.clickx && e.y == this.clicky) return
@@ -195,13 +235,13 @@ define([
 
                 }
             },
-            drawDoubleClick: function (e) {
+            draw_double_click: function (e) {
                 e.stopPropagation()
                 this.deactivate()
             },
 
             drawFreeLine_click: function (e) {
-
+                this._currMessage = '<b>Double</b> click to end.'
                 var pt = [e.mapPoint.x, e.mapPoint.y, e.mapPoint.z]
                 this._points.push(pt)
                 if (this._points.length >= 2) {
@@ -230,8 +270,14 @@ define([
             },
 
             drawPolygon: function (e) {
+
                 var pt = [e.mapPoint.x, e.mapPoint.y, e.mapPoint.z]
                 this._points.push(pt)
+                if(this._points.length==1){
+                    this._currMessage = '<b>Single</b> click to add point.'
+                }else if(this._points.length==2){
+                    this._currMessage = '<b>Single</b> click to add point.<br/><b>Double</b> click to end.'
+                }
                 if (this._points.length >= 3) {
                     var r = JSON.parse(JSON.stringify(this._points))
                     r.push(r[0])
@@ -246,9 +292,13 @@ define([
 
             },
             drawPolygon_pt_move: function (e) {
-                if (this._points.length <= 1) return
+                if (this._points.length == 0) return
                 var mp = this.view.toMap({x: e.x, y: e.y})
                 var pt = [mp.x, mp.y, mp.z]
+                if (this._points.length == 1) {
+                    this._points.push(pt)
+                }
+
                 if (this._points.length == 2) this._points.push(pt)
                 else {
                     this._points.splice(this._points.length - 1, 1, pt)
@@ -263,6 +313,7 @@ define([
                 this.addGraphic2Map(polygon, this.fillSymbol)
             },
             drawCircle: function (e) {
+                this._currMessage = '<b>Double</b> click to end.'
                 var pt = {x: e.mapPoint.x, y: e.mapPoint.y, z: e.mapPoint.z}
                 this._points.push(pt)
                 if (this._points.length >= 2) {
@@ -291,6 +342,12 @@ define([
             drawCurve: function (e) {
                 var pt = [e.mapPoint.x, e.mapPoint.y, e.mapPoint.z]
                 this._points.push(pt)
+                if(this._points.length==1){
+                    this._currMessage = '<b>Single</b> click to add second points.'
+                }
+                else if(this._points.length==2){
+                    this._currMessage = '<b>Double</b> click to end.'
+                }
                 if (this._points.length >= 3) {
                     var r = JSON.parse(JSON.stringify(this._points));
                     var geometry = new Polyline({
@@ -315,6 +372,7 @@ define([
                 }
             },
             drawFreeHandArrow: function (e) {
+                this._currMessage = '<b>Single</b> click to add point.<br/><b>Double</b> click to end.'
                 var pt = {x: e.mapPoint.x, y: e.mapPoint.y, z: e.mapPoint.z}
                 this._points.push(pt)
                 var polygon
@@ -367,6 +425,7 @@ define([
             },
 
             drawFreePolygon: function (e) {
+                this._currMessage = '<b>Single</b> click to add point.<br/><b>Double</b> click to end.'
                 var pt = {x: e.mapPoint.x, y: e.mapPoint.y, z: e.mapPoint.z}
                 this._points.push(pt)
                 if (this._points.length >= 3) {
@@ -393,6 +452,7 @@ define([
 
             },
             drawbezierLine: function (e) {
+                this._currMessage = '<b>Single</b> click to add point.<br/><b>Double</b> click to end.'
                 var pt = {x: e.mapPoint.x, y: e.mapPoint.y, z: e.mapPoint.z}
                 this._points.push(pt)
                 if (this._points.length >= 3) {
@@ -418,6 +478,7 @@ define([
                 this.addGraphic2Map(geometry, this.lineSymbol)
             },
             drawMultiHead: function (e) {
+                this._currMessage = '<b>Single</b> click to add point.<br/><b>Right</b> click to add new arrow. <b>Double</b> click to end.'
                 if (e.native.which == 3) {
                     this.newHead()
                     return
@@ -448,7 +509,6 @@ define([
                     this._headerCollection[this._headerCollection.length - 1] = polygon
                 var union = geometryEngine.union(this._headerCollection);
                 this.addGraphic2Map(union, this.fillSymbol)
-
 
 
             },
@@ -484,9 +544,29 @@ define([
                 var union = geometryEngine.union(this._headerCollection);
                 this.addGraphic2Map(union, this.fillSymbol)
             },
-            _y:0,
-            drawCube_pt_move:function (e) {
+            _y: 0,
+            _yFinal: 0,
+            drawcube_click: function (e) {
+
+                if (e.native.which == 3) {
+                    this._yFinal = this._y;
+                    this.gl.remove(this._currGra)
+                    console.log(this._yFinal)
+
+                }
+            },
+            drawcube_pt_move: function (e) {
                 this._y = e.y
+                if (this._yFinal != 0) {
+                    var symbol = new PolygonSymbol3D({
+                        symbolLayers: [new ExtrudeSymbol3DLayer({
+                            size: this.view.scale * Math.abs(e.y - this._yFinal) / 1000,  // 100,000 meters in height
+                            material: {color: this.fillSymbol.color}
+                        })]
+                    });
+                    this.addGraphic2Map(this._lastGeometry, symbol)
+                }
+
             },
             drawDash: function (e) {
                 this._points.push(e.mapPoint.x)
@@ -636,7 +716,7 @@ define([
             MULTIHEAD: 'multihead',
             DASHLINE: 'dashline',
             FREELINE: 'freeline',
-            CUBE:'cube'
+            CUBE: 'cube'
         })
         return draw;
 
