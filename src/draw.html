@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <title>Draw in 3d</title>
+    <style>
+        html,
+        body,
+        #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+
+        #buttonsDiv {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 12px;
+            background-color: rgba(200, 200, 200, 0.5);
+            border: 1px solid black;
+        }
+
+        /*#pt,#line,#polygon {*/
+        /*display: inline-block;*/
+        /*vertical-align: middle;*/
+        /*width: 30px;*/
+        /*height: 30px;*/
+        /*background-color: rgba(100, 100, 100, 0.8);*/
+        /*border: 2px solid #ccc;*/
+        /*}*/
+    </style>
+
+    <script src="script/jscolor.min.js"></script>
+    <link rel="stylesheet" href="http://localhost/jsapi/4.1/esri/css/main.css">
+    <script src="http://localhost/jsapi/4.2/"></script>
+    <!--<link rel="stylesheet" href="https://js.arcgis.com/4.1/esri/css/main.css">-->
+    <!--<script src="script/tween.js"></script>-->
+    <script>
+        require([
+            'esri/layers/FeatureLayer',
+            'esri/layers/support/LabelClass',
+            'esri/symbols/LabelSymbol3D',
+            'esri/symbols/TextSymbol3DLayer',
+            "esri/Map",
+            "esri/views/SceneView",
+            "esri/widgets/Search",
+            "./script/Graphic.js",
+            "esri/geometry/Point",
+            "esri/geometry/Polyline",
+            "esri/geometry/Polygon",
+            "esri/symbols/SimpleMarkerSymbol",
+            "esri/symbols/SimpleLineSymbol",
+            "esri/symbols/SimpleFillSymbol",
+            "esri/layers/GraphicsLayer",
+            'esri/config',
+            "dojo/dom",
+            "dojo/on",
+            './script/Draw.js',
+            "dojo/domReady!"
+        ], function (FeatureLayer, LabelClass, LabelSymbol3D, TextSymbol3DLayer, Map, SceneView, Search, Graphic, Point, Polyline, Polygon, SimpleMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol, GraphicsLayer, esriConfig, dom, on, Draw) {
+            esriConfig.request.corsEnabledServers.push('localhost')
+            // Create the Map
+            graphicsLayer = new GraphicsLayer();
+            map = new Map({
+                basemap: "hybrid",
+                ground: "world-elevation",
+                layers: [graphicsLayer]
+            });
+            // Create the SceneView
+            view = new SceneView({
+                map: map,
+                container: "viewDiv",
+                camera: {
+                    "position": {
+                        "x": 1159169.795274948,
+                        "y": 3404111.7595307524,
+                        "z": 3377806.803240752,
+                        "spatialReference": {"latestWkid": 3857, "wkid": 102100}
+                    }, "heading": 355.6854419524642, "tilt": 29.162116134342572
+                }
+//                    {
+//                    position: [7.654, 45.919, 5183],
+//                    tilt: 80
+//                }
+            });
+
+
+            draw = new Draw({view: view, gl: graphicsLayer})
+
+
+            document.getElementById('buttonsDiv').addEventListener('click', function (e) {
+//                console.log(e);
+                switch (e.target.id) {
+                    case 'pt':
+                        draw.activate(Draw.POINT)
+                        break;
+                    case 'freeline':
+                        draw.activate(Draw.FREELINE)
+                        break;
+                    case 'line':
+                        draw.activate(Draw.LINE)
+                        break;
+                    case 'dashline':
+                        draw.activate(Draw.DASHLINE)
+                        break;
+                    case 'polygon':
+                        draw.activate(Draw.POLYGON)
+                        break;
+                    case 'circle':
+                        draw.activate(Draw.CIRCLE)
+                        break;
+                    case 'curve':
+                        draw.activate(Draw.CURVE)
+                        break;
+                    case 'freearrow':
+                        draw.activate(Draw.FREEHAND_ARROW)
+                        break;
+                    case 'freepoly':
+                        draw.activate(Draw.BEZIER_POLYGON)
+                        break;
+                    case 'Bezierline':
+                        draw.activate(Draw.BEZIER_CURVE)
+                        break;
+                    case 'multihead':
+                        draw.activate(Draw.MULTIHEAD)
+                        break;
+                    case 'cube':
+                        draw.activate(Draw.CUBE)
+                        break;
+                }
+            })
+
+            document.body.addEventListener('keydown', function (e) {
+//                console.log(e)
+                switch (e.code) {
+                    case 'Numpad1':
+                        draw.newHead()
+                        break;
+                    case 'Numpad2':
+                        draw.activate(Draw.POINT)
+                        break;
+                    case 'Numpad3':
+                        draw.activate(Draw.LINE)
+                        break;
+                    case 'Numpad4':
+                        draw.activate(Draw.POLYGON)
+                        break;
+                    case 'Numpad5':
+                        draw.activate(Draw.CIRCLE)
+                        break;
+                    case 'Numpad6':
+                        draw.activate(Draw.CURVE)
+                        break;
+                    case 'Numpad7':
+                        draw.activate(Draw.FREEHAND_ARROW)
+                        break;
+                    case 'Numpad8':
+                        draw.activate(Draw.BEZIER_POLYGON)
+                        break;
+                    case 'Numpad9':
+                        draw.activate(Draw.BEZIER_CURVE)
+                        break;
+                    case 'Numpad0':
+                        draw.activate(Draw.MULTIHEAD)
+                        break;
+                }
+
+            })
+            update = function (e) {
+                draw.pointSymbol = new SimpleMarkerSymbol({
+                    color: [e.rgb[0], e.rgb[1], e.rgb[2]],
+
+                    outline: {
+                        color: [255, 255, 255],
+                        width: 2
+                    }
+                })
+                draw.lineSymbol = new SimpleLineSymbol({
+                    color: [e.rgb[0], e.rgb[1], e.rgb[2]],
+                    width: 4
+                })
+                draw.fillSymbol = new SimpleFillSymbol({
+                    color: [e.rgb[0], e.rgb[1], e.rgb[2]],
+                    outline: {
+                        color: [255, 255, 255],
+                        width: 1
+                    }
+                })
+            }
+            var offsetInput = document.getElementById('offsetInput')
+            var select = document.getElementById('modeSelect')
+            select.addEventListener('change', function () {
+                var mode = select.options[select.selectedIndex].value;
+
+                if (mode != "on-the-ground") {
+                    offsetInput.removeAttribute("disabled");
+                } else {
+                    offsetInput.setAttribute("disabled", "true");
+                }
+
+                graphicsLayer.elevationInfo = {
+                    mode: mode,
+                    offset: document.getElementById('offsetInput').value
+                };
+            })
+
+            offsetInput.addEventListener('mousewheel', function (e) {
+                offsetInput.value -= e.deltaY
+                graphicsLayer.elevationInfo = {
+                    mode: select.options[select.selectedIndex].value,
+                    offset: document.getElementById('offsetInput').value
+                };
+            })
+
+        });
+    </script>
+</head>
+
+<body>
+<div id="viewDiv"></div>
+<div id="buttonsDiv">
+    <button id="pt">Point</button>
+    <button id="freeline">FreeLine</button>
+    <button id="line">Line</button>
+
+    <button id="polygon">Polygon</button>
+    <button id="circle">Circle</button>
+    <button id="curve">Circle Segment</button>
+    <button id="freearrow">Arrow</button>
+    <button id="freepoly">Bezier polygon</button>
+    <button id="Bezierline">Bezier line</button>
+    <button id="multihead">Multiple Head Arrow</button>
+    <button id="cube">Cube</button>
+    <button id="dashline">Dash Line(experimental)</button>
+
+    <br>
+    <label>
+        <input class="jscolor" value="e27728" style="margin-top: 10px" onchange="update(this.jscolor)">
+    </label>
+    <table style="display:inline;margin-left:50px">
+        <tr>
+            <td>Mode:</td>
+            <td>
+                <select id="modeSelect">
+                    <option value="on-the-ground">on the ground</option>
+                    <option value="relative-to-ground">relative to ground</option>
+                    <option value="absolute-height">absolute height</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>Offset:</td>
+            <td><input id="offsetInput" type="text" size="5" value="2000" disabled="true"></td>
+        </tr>
+    </table>
+</div>
+
+</body>
+</html>
