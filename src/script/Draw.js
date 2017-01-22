@@ -108,7 +108,7 @@ define(["esri/core/declare",
 
                     case draw.POLYGON:
                         this.reset('on-the-ground')
-                        this._currMessage = '<b>Single</b> click to start or add point.'
+                        this._currMessage = '<b>Single</b> click to start.'
                         this._handlers.click = this.view.on('click', this.drawPolygon.bind(this));
                         this._handlers.pointer_move = this.view.on('pointer-move', this.drawPolygon_pt_move.bind(this))
                         this._handlers.doubleClick = this.view.on('double-click', this.draw_double_click.bind(this))
@@ -273,9 +273,9 @@ define(["esri/core/declare",
 
                 var pt = [e.mapPoint.x, e.mapPoint.y, e.mapPoint.z]
                 this._points.push(pt)
-                if(this._points.length==1){
+                if (this._points.length == 1) {
                     this._currMessage = '<b>Single</b> click to add point.'
-                }else if(this._points.length==2){
+                } else if (this._points.length == 2) {
                     this._currMessage = '<b>Single</b> click to add point.<br/><b>Double</b> click to end.'
                 }
                 if (this._points.length >= 3) {
@@ -297,20 +297,34 @@ define(["esri/core/declare",
                 var pt = [mp.x, mp.y, mp.z]
                 if (this._points.length == 1) {
                     this._points.push(pt)
+                    var line = new Polyline({
+                        paths: [this._points],
+                        spatialReference: this.view.spatialReference
+                    })
+                    this.addGraphic2Map(line, this.lineSymbol)
                 }
 
-                if (this._points.length == 2) this._points.push(pt)
+                else if (this._points.length == 2) {
+                    this._points.splice(this._points.length - 1, 1, pt)
+                    line = new Polyline({
+                        paths: [this._points],
+                        spatialReference: this.view.spatialReference
+                    })
+                    this.addGraphic2Map(line, this.lineSymbol)
+
+                }
                 else {
                     this._points.splice(this._points.length - 1, 1, pt)
-                }
-                var r = JSON.parse(JSON.stringify(this._points))
-                r.push(r[0])
+                    var r = JSON.parse(JSON.stringify(this._points))
+                    r.push(r[0])
 
-                var polygon = new Polygon({
-                    rings: r,
-                    spatialReference: this.view.spatialReference
-                })
-                this.addGraphic2Map(polygon, this.fillSymbol)
+                    var polygon = new Polygon({
+                        rings: r,
+                        spatialReference: this.view.spatialReference
+                    })
+                    this.addGraphic2Map(polygon, this.fillSymbol)
+                }
+
             },
             drawCircle: function (e) {
                 this._currMessage = '<b>Double</b> click to end.'
@@ -342,10 +356,10 @@ define(["esri/core/declare",
             drawCurve: function (e) {
                 var pt = [e.mapPoint.x, e.mapPoint.y, e.mapPoint.z]
                 this._points.push(pt)
-                if(this._points.length==1){
+                if (this._points.length == 1) {
                     this._currMessage = '<b>Single</b> click to add second points.'
                 }
-                else if(this._points.length==2){
+                else if (this._points.length == 2) {
                     this._currMessage = '<b>Double</b> click to end.'
                 }
                 if (this._points.length >= 3) {
