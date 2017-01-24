@@ -1,5 +1,5 @@
 # ArcGIS JavaScript API 4.2 Draw extension
-
+[中文说明](https://github.com/crazyxhz/3d-draw/blob/master/README_CN.md)
 ##Introduction
 Customized a drawing utility class which supports graphic drawing in the sceneview. Supported geometry types includes: point, line, polygon, circle, circle segments, bezier polygon, bezier line, arrow and multi-head arrow. It also supports turn a polygon geometry type into a cubic. The support for drawing dashed line is experimental (it is implemented using three.js) it does not support customize of the line width.
 
