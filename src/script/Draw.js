@@ -50,7 +50,7 @@ define(["esri/core/declare",
                 this._headerCollection = []
                 this._handlers = {}
                 this._currMessage = ''
-                document.body.insertAdjacentHTML('beforeend', '<div id="tips" style="position:absolute;padding: 20px; display:none;background: white;z-index: 2147483647;font-size: 12px;border-style: solid;border-color: #dddddd;border-width: 1px;margin-top: 5px;margin-left: 5px;padding-bottom: 5px;padding-left: 5px;padding-right: 5px;padding-top: 5px;"></div>')
+                document.body.insertAdjacentHTML('beforeend', '<div id="tips" style="position:absolute;padding: 20px; display:none;background: white;z-index: 2147483647;font-size: 12px;border-style: solid;border-color: #dddddd;border-width: 1px;margin-top: 15px;margin-left: 15px;padding-bottom: 5px;padding-left: 5px;padding-right: 5px;padding-top: 5px;"></div>')
                 this.view.root.addEventListener('mousemove', function (e) {
                     if (this._currMessage) {
                         var left = e.clientX + "px";
@@ -87,19 +87,19 @@ define(["esri/core/declare",
                 switch (options) {
                     case draw.POINT:
                         this.reset('on-the-ground')
-                        this._currMessage = '<b>Single</b> click to add point.'
+                        this._currMessage = draw.messageTemplate.singleClickAdd
                         this._handlers.click = this.view.on('click', this.draw_pt_click.bind(this));
                         break;
                     case draw.FREELINE:
                         this.reset('on-the-ground')
-                        this._currMessage = '<b>Single</b> click to start.'
+                        this._currMessage = draw.messageTemplate.singleClickStart
                         this._handlers.click = this.view.on('click', this.drawFreeLine_click.bind(this));
                         this._handlers.pointer_move = this.view.on('pointer-move', this.drawFreeLine_pt_move.bind(this))
                         this._handlers.doubleClick = this.view.on('double-click', this.draw_double_click.bind(this))
                         break;
                     case draw.LINE:
                         this.reset('on-the-ground')
-                        this._currMessage = '<b>Single</b> click to start.'
+                        this._currMessage = draw.messageTemplate.singleClickStart
 
                         this._handlers.click = this.view.on('click', this.drawline_click.bind(this));
                         this._handlers.pointer_move = this.view.on('pointer-move', this.drawline_pt_move.bind(this))
@@ -108,49 +108,49 @@ define(["esri/core/declare",
 
                     case draw.POLYGON:
                         this.reset('on-the-ground')
-                        this._currMessage = '<b>Single</b> click to start.'
+                        this._currMessage = draw.messageTemplate.singleClickStart
                         this._handlers.click = this.view.on('click', this.drawPolygon.bind(this));
                         this._handlers.pointer_move = this.view.on('pointer-move', this.drawPolygon_pt_move.bind(this))
                         this._handlers.doubleClick = this.view.on('double-click', this.draw_double_click.bind(this))
                         break;
                     case draw.CIRCLE:
                         this.reset('on-the-ground')
-                        this._currMessage = '<b>Single</b> click to start.'
+                        this._currMessage = draw.messageTemplate.singleClickStart
                         this._handlers.click = this.view.on('click', this.drawCircle.bind(this));
                         this._handlers.pointer_move = this.view.on('pointer-move', this.drawCircle_pt_move.bind(this))
                         this._handlers.doubleClick = this.view.on('double-click', this.draw_double_click.bind(this))
                         break;
                     case draw.CURVE:
                         this.reset('on-the-ground')
-                        this._currMessage = '<b>Single</b> click to start.'
+                        this._currMessage = draw.messageTemplate.singleClickStart
                         this._handlers.click = this.view.on('click', this.drawCurve.bind(this));
                         this._handlers.pointer_move = this.view.on('pointer-move', this.drawCurve_pt_move.bind(this))
                         this._handlers.doubleClick = this.view.on('double-click', this.draw_double_click.bind(this))
                         break;
                     case draw.FREEHAND_ARROW:
                         this.reset('on-the-ground')
-                        this._currMessage = '<b>Single</b> click to start.'
+                        this._currMessage = draw.messageTemplate.singleClickStart
                         this._handlers.click = this.view.on('click', this.drawFreeHandArrow.bind(this));
                         this._handlers.pointer_move = this.view.on('pointer-move', this.drawFreeHandArrow_pt_move.bind(this))
                         this._handlers.doubleClick = this.view.on('double-click', this.draw_double_click.bind(this))
                         break;
                     case draw.BEZIER_POLYGON:
                         this.reset('on-the-ground')
-                        this._currMessage = '<b>Single</b> click to start.'
+                        this._currMessage = draw.messageTemplate.singleClickStart
                         this._handlers.click = this.view.on('click', this.drawFreePolygon.bind(this));
                         this._handlers.pointer_move = this.view.on('pointer-move', this.drawFreePolygon_pt_move.bind(this))
                         this._handlers.doubleClick = this.view.on('double-click', this.draw_double_click.bind(this))
                         break;
                     case draw.BEZIER_CURVE:
                         this.reset('on-the-ground')
-                        this._currMessage = '<b>Single</b> click to start.'
+                        this._currMessage = draw.messageTemplate.singleClickStart
                         this._handlers.click = this.view.on('click', this.drawbezierLine.bind(this));
                         this._handlers.pointer_move = this.view.on('pointer-move', this.drawbezierLine_pt_move.bind(this))
                         this._handlers.doubleClick = this.view.on('double-click', this.draw_double_click.bind(this))
                         break;
                     case draw.MULTIHEAD:
                         this.reset('on-the-ground')
-                        this._currMessage = '<b>Single</b> click to start.'
+                        this._currMessage = draw.messageTemplate.singleClickStart
                         this._handlers.click = this.view.on('click', this.drawMultiHead.bind(this));
                         this._handlers.pointer_move = this.view.on('pointer-move', this.drawMultiHead_pt_move.bind(this))
                         this._handlers.doubleClick = this.view.on('double-click', this.draw_double_click.bind(this))
@@ -162,7 +162,7 @@ define(["esri/core/declare",
                     case draw.CUBE:
                         // this.reset('on-the-ground')
                         //this.activate(draw.POLYGON)
-
+                        this._currMessage = draw.messageTemplate.clickCubic
                         this._handlers.click = this.view.on('click', this.drawcube_click.bind(this));
                         this._handlers.pointer_move = this.view.on('pointer-move', this.drawcube_pt_move.bind(this))
                         this._handlers.doubleClick = this.view.on('double-click', this.draw_double_click.bind(this))
@@ -175,13 +175,13 @@ define(["esri/core/declare",
                 }
                 // this.drawHandler.remove()
                 this._preGra = null
-                this._lastGeometry = this._currGra.geometry
+                this._lastGeometry = null
                 this._y = 0
                 this._yFinal = 0
                 this._currMessage = ''
                 var div = document.getElementById('tips');
                 div.style.display = 'none'
-                // this._currGra = null
+                this._currGra = null
             },
             draw_pt_click: function (e) {
                 var point = new Point({
@@ -196,7 +196,7 @@ define(["esri/core/declare",
                 // this.reset('on-the-ground')
             },
             drawline_click: function (e) {
-                this._currMessage = '<b>Single</b> click to add point.<br/><b>Double</b> click to end.'
+                this._currMessage = draw.messageTemplate.clickdblclick
                 var pt = [e.mapPoint.x, e.mapPoint.y, e.mapPoint.z]
                 this._points.push(pt)
                 if (this._points.length >= 2) {
@@ -241,7 +241,7 @@ define(["esri/core/declare",
             },
 
             drawFreeLine_click: function (e) {
-                this._currMessage = '<b>Double</b> click to end.'
+                this._currMessage = draw.messageTemplate.dblclickend
                 var pt = [e.mapPoint.x, e.mapPoint.y, e.mapPoint.z]
                 this._points.push(pt)
                 if (this._points.length >= 2) {
@@ -274,9 +274,7 @@ define(["esri/core/declare",
                 var pt = [e.mapPoint.x, e.mapPoint.y, e.mapPoint.z]
                 this._points.push(pt)
                 if (this._points.length == 1) {
-                    this._currMessage = '<b>Single</b> click to add point.'
-                } else if (this._points.length == 2) {
-                    this._currMessage = '<b>Single</b> click to add point.<br/><b>Double</b> click to end.'
+                    this._currMessage = draw.messageTemplate.clickdblclick
                 }
                 if (this._points.length >= 3) {
                     var r = JSON.parse(JSON.stringify(this._points))
@@ -327,7 +325,7 @@ define(["esri/core/declare",
 
             },
             drawCircle: function (e) {
-                this._currMessage = '<b>Double</b> click to end.'
+                this._currMessage = draw.messageTemplate.dblclickend
                 var pt = {x: e.mapPoint.x, y: e.mapPoint.y, z: e.mapPoint.z}
                 this._points.push(pt)
                 if (this._points.length >= 2) {
@@ -357,10 +355,10 @@ define(["esri/core/declare",
                 var pt = [e.mapPoint.x, e.mapPoint.y, e.mapPoint.z]
                 this._points.push(pt)
                 if (this._points.length == 1) {
-                    this._currMessage = '<b>Single</b> click to add second points.'
+                    this._currMessage = draw.messageTemplate.clickAddSecond
                 }
                 else if (this._points.length == 2) {
-                    this._currMessage = '<b>Double</b> click to end.'
+                    this._currMessage = draw.messageTemplate.dblclickend
                 }
                 if (this._points.length >= 3) {
                     var r = JSON.parse(JSON.stringify(this._points));
@@ -386,7 +384,7 @@ define(["esri/core/declare",
                 }
             },
             drawFreeHandArrow: function (e) {
-                this._currMessage = '<b>Single</b> click to add point.<br/><b>Double</b> click to end.'
+                this._currMessage = draw.messageTemplate.clickdblclick
                 var pt = {x: e.mapPoint.x, y: e.mapPoint.y, z: e.mapPoint.z}
                 this._points.push(pt)
                 var polygon
@@ -439,7 +437,7 @@ define(["esri/core/declare",
             },
 
             drawFreePolygon: function (e) {
-                this._currMessage = '<b>Single</b> click to add point.<br/><b>Double</b> click to end.'
+                this._currMessage = draw.messageTemplate.clickdblclick
                 var pt = {x: e.mapPoint.x, y: e.mapPoint.y, z: e.mapPoint.z}
                 this._points.push(pt)
                 if (this._points.length >= 3) {
@@ -451,22 +449,41 @@ define(["esri/core/declare",
                 }
             },
             drawFreePolygon_pt_move: function (e) {
-                if (this._points.length <= 1) return
+                if (this._points.length == 0) return
                 var mp = this.view.toMap({x: e.x, y: e.y})
                 var pt = {x: mp.x, y: mp.y, z: mp.z}
-                if (this._points.length == 2) this._points.push(pt)
+                if (this._points.length == 1) {
+                    this._points.push(pt)
+                    var line = new Polyline({
+                        paths: [this._points],
+                        spatialReference: this.view.spatialReference
+                    })
+                    this.addGraphic2Map(line, this.lineSymbol)
+                }
+                else if (this._points.length == 2) {
+                    this._points.splice(this._points.length - 1, 1, pt)
+                    line = new Polyline({
+                        paths: [this._points],
+                        spatialReference: this.view.spatialReference
+                    })
+                    this.addGraphic2Map(line, this.lineSymbol)
+
+                }
                 else {
                     this._points.splice(this._points.length - 1, 1, pt)
+                    var geometry = new Polygon({
+                        rings: [MathStuff.bezierPoly(this._points)],
+                        spatialReference: this.view.spatialReference
+                    });
+                    this.addGraphic2Map(geometry, this.fillSymbol)
+
+
                 }
-                var geometry = new Polygon({
-                    rings: [MathStuff.bezierPoly(this._points)],
-                    spatialReference: this.view.spatialReference
-                });
-                this.addGraphic2Map(geometry, this.fillSymbol)
+
 
             },
             drawbezierLine: function (e) {
-                this._currMessage = '<b>Single</b> click to add point.<br/><b>Double</b> click to end.'
+                this._currMessage = draw.messageTemplate.clickdblclick
                 var pt = {x: e.mapPoint.x, y: e.mapPoint.y, z: e.mapPoint.z}
                 this._points.push(pt)
                 if (this._points.length >= 3) {
@@ -492,7 +509,7 @@ define(["esri/core/declare",
                 this.addGraphic2Map(geometry, this.lineSymbol)
             },
             drawMultiHead: function (e) {
-                this._currMessage = '<b>Single</b> click to add point.<br/><b>Right</b> click to add new arrow. <b>Double</b> click to end.'
+                this._currMessage = draw.messageTemplate.clickdblright
                 if (e.native.which == 3) {
                     this.newHead()
                     return
@@ -561,13 +578,31 @@ define(["esri/core/declare",
             _y: 0,
             _yFinal: 0,
             drawcube_click: function (e) {
-
-                if (e.native.which == 3) {
-                    this._yFinal = this._y;
-                    this.gl.remove(this._currGra)
-                    console.log(this._yFinal)
-
+                // this.view.hitTest({x: e.x, y: e.y}).then(function (response) {
+                //     var result = response.results[0];
+                //
+                //     //console.log(response.results);
+                //     if (result && result.graphic) {
+                //         //objids.push(result.graphic.attributes.objectid)
+                //         this._yFinal = this._y;
+                //         this.gl.remove(result.graphic)
+                //
+                //     }
+                // }.bind(this))
+                this._currMessage = draw.messageTemplate.dblclickend
+                var mp = this.view.toMap({x: e.x, y: e.y})
+                for (var i = 0; i < this.gl.graphics.items.length; i++) {
+                    var obj = this.gl.graphics.items[i];
+                    if (geometryEngine.contains(obj.geometry, mp)) {
+                        console.log(obj)
+                        this._yFinal = this._y;
+                        this._lastGeometry = obj.geometry
+                        this.gl.remove(obj)
+                        break;
+                    }
                 }
+
+
             },
             drawcube_pt_move: function (e) {
                 this._y = e.y
@@ -731,6 +766,17 @@ define(["esri/core/declare",
             DASHLINE: 'dashline',
             FREELINE: 'freeline',
             CUBE: 'cube'
+        })
+        lang.mixin(draw, {
+            messageTemplate: {
+                singleClickAdd: '<b>Single</b> click to add point.',
+                dblclickend: '<b>Double</b> click to end.',
+                clickdblclick: '<b>Single</b> click to continue.<br/><b>Double</b> click to end.',
+                clickdblright: '<b>Single</b> click to continue.<br/><b>Right</b> click to add new arrow. <br/><b>Double</b> click to end.',
+                singleClickStart: '<b>Single</b> click to start.',
+                clickAddSecond: '<b>Single</b> click to add second point.',
+                clickCubic: '<b>Single</b> click to cubic a polygon'
+            }
         })
         return draw;
 
