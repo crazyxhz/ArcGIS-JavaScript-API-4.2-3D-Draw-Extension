@@ -539,6 +539,30 @@ define(["esri/core/declare",
                 else
                     this._headerCollection[this._headerCollection.length - 1] = polygon
                 var union = geometryEngine.union(this._headerCollection);
+                if (!union) {
+                    this._points.pop()
+                    polygon = new Polygon({
+                        rings: [MathStuff.arrow2(this._points[0], this._points[1])],
+                        spatialReference: this.view.spatialReference
+                    })
+                    if (this._headerCollection.length == 0)
+                        this._headerCollection.push(polygon)
+                    else
+                        this._headerCollection[this._headerCollection.length - 1] = polygon
+                    union = geometryEngine.union(this._headerCollection);
+                    if (union) {
+                        polygon = new Polygon({
+                            rings: [MathStuff.arrow3(this._points)],
+                            spatialReference: this.view.spatialReference
+                        })
+                        if (this._headerCollection.length == 0)
+                            this._headerCollection.push(polygon)
+                        else
+                            this._headerCollection[this._headerCollection.length - 1] = polygon
+                        union = geometryEngine.union(this._headerCollection);
+                    }
+                }
+
                 this.addGraphic2Map(union, this.fillSymbol)
 
 
