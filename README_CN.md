@@ -1,5 +1,5 @@
 # ArcGIS JavaScript API 4.2 绘图扩展
-[Demo](https://crazyxhz.github.io/3d-draw/src/draw.html)
+[Demo](https://crazyxhz.github.io/ArcGIS-JavaScript-API-4.2-3D-Draw-Extension/src/draw.html)
 ##概览
 自定义了一个Draw类，支持三维场景下点、线、面、圆形、圆弧、贝塞尔曲线、贝塞尔曲面、箭头、多头箭头的绘制。支持立方体化多边形，支持通过Three.js扩展绘制虚线（不完善，由于Windows上WebGL的限制，不支持自定义线宽）
 
