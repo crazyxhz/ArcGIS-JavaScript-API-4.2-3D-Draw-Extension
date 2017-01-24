@@ -53,7 +53,7 @@ The Draw class's constructor accept a object which contains a `view` property an
 
 ##System Requirements:
 
-**浏览器版本**：Latest version of Chrome,FireFox,IE and Edge
+**Browser**：Latest version of Chrome,FireFox,IE and Edge
 
 
 
